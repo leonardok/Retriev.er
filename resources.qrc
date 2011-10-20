@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>resources/golden-transparent_43x43x32.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>resources/TangoIcons/dialog-error.png</file>
+        <file>resources/TangoIcons/mail-send-receive.png</file>
+        <file>resources/TangoIcons/software-update-available.png</file>
+        <file>resources/TangoIcons/process-stop.png</file>
+    </qresource>
+</RCC>
