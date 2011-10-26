@@ -31,6 +31,8 @@
 #include <QCloseEvent>
 #include <QProcess>
 #include <QSettings>
+#include <QVariant>
+#include <QMessageBox>
 
 #include "header/retriever.h"
 #include "header/task.h"
@@ -44,7 +46,7 @@ Retriever::Retriever(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    taskList = new QList <Task *>;
+    this->taskList = new QList <Task *>;
     this->options  = new Options();
     this->settings = new QSettings("leok.me", "Retriever");
 
@@ -88,6 +90,18 @@ Retriever::Retriever(QWidget *parent) :
     trayIcon->show();
 }
 
+Retriever::~Retriever()
+{
+    delete ui;
+}
+
+/**
+ * @fn          void Retriever::createTrayIcon(void)
+ * @brief       Creates try icon
+ *
+ * @details     Create the tray icon and associate the functions that it will
+ *              do.
+ */
 void Retriever::createTrayIcon()
 {
 	trayIconMenu = new QMenu(this);
@@ -101,18 +115,22 @@ void Retriever::createTrayIcon()
 	trayIcon->setToolTip("Retriever");
 }
 
-
+/**
+ * @fn          void Retriever::createActions(void)
+ * @brief       Creates try icon actions
+ *
+ * @details     Create the actions for the tray
+ */
 void Retriever::createActions()
 {
 	restoreAction = new QAction(tr("&Restore"), this);
 	connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 }
 
-Retriever::~Retriever()
-{
-    delete ui;
-}
-
+/**
+ * @fn          void Retriever::closeEvent(QCloseEvent *event)
+ * @brief       Handle close to tray
+ */
 void Retriever::closeEvent(QCloseEvent *event)
 {
 	if (trayIcon->isVisible()) {
@@ -123,7 +141,7 @@ void Retriever::closeEvent(QCloseEvent *event)
 		event->accept();
 }
 
-int Retriever::getFreeId()
+int Retriever::getFreeId(void)
 {
 	int free_id = 0, i;
 	for (i = 0; i < this->taskList->size(); i++)
@@ -155,9 +173,19 @@ Task * Retriever::createNewTask(void)
 void Retriever::editTask(void)
 {
 	int selected_row = this->ui->taskList->currentIndex().row();
-	qDebug() << "Selected " << this->taskList->at(selected_row)->title;
+	if (selected_row < 0)
+	{
+		qDebug() << "Nothing to edit";
 
-	this->taskList->at(selected_row)->show();
+		QMessageBox msgBox;
+		msgBox.setText("Please selecte an entry.");
+		msgBox.exec();
+	}
+	else
+	{
+		qDebug() << "Selected " << this->taskList->at(selected_row)->title;
+		this->taskList->at(selected_row)->show();
+	}
 	return;
 }
 void Retriever::showTask(QModelIndex index)
@@ -340,7 +368,6 @@ void Retriever::loadTaskList(void)
 void Retriever::readFromStdout(void)
 {
 	QString msg = proc->readAllStandardOutput();
-	msg.replace(QRegExp("\n"), "");
 	this->ui->console->append(msg);
 }
 
@@ -392,6 +419,16 @@ void Retriever::syncSelectedTask(void)
 	this->ui->console->clear();
 
 	int selected_row = this->ui->taskList->currentIndex().row();
+	if (selected_row < 0)
+	{
+		qDebug() << "Nothing to sync";
+
+		QMessageBox msgBox;
+		msgBox.setText("Please selecte an entry.");
+		msgBox.exec();
+
+		return;
+	}
 
 	qDebug() << "Selected " << this->taskList->at(selected_row)->title;
 
@@ -461,10 +498,22 @@ void Retriever::syncSelectedTask(void)
 void Retriever::deleteTask(void)
 {
 	int selected_row = this->ui->taskList->currentIndex().row();
-	qDebug() << "Selected " << this->taskList->at(selected_row)->title;
+	if (selected_row < 0)
+	{
+		qDebug() << "Nothing to delete";
 
-	this->taskList->removeAt(selected_row);
-	this->refreshTaskList();
+		QMessageBox msgBox;
+		msgBox.setText("Please select an entry.");
+		msgBox.exec();
+	}
+	else
+	{
+		qDebug() << "Selected " << this->taskList->at(selected_row)->title;
+		this->taskList->removeAt(selected_row);
+		this->refreshTaskList();
+	}
+
+	return;
 }
 
 
