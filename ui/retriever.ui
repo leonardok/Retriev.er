@@ -119,6 +119,9 @@
     </property>
     <addaction name="menuFileSave"/>
     <addaction name="separator"/>
+    <addaction name="menuFileExportSettings"/>
+    <addaction name="menuFileImportSettings"/>
+    <addaction name="separator"/>
     <addaction name="menuOptionsShow"/>
     <addaction name="menuFileQuit"/>
    </widget>
@@ -178,6 +181,19 @@
   <action name="menuOptionsShow">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="menuFileExportSettings">
+   <property name="text">
+    <string>Export Settings...</string>
+   </property>
+  </action>
+  <action name="menuFileImportSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Import Settings...</string>
    </property>
   </action>
  </widget>

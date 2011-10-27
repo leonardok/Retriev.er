@@ -33,6 +33,8 @@
 #include <QSettings>
 #include <QVariant>
 #include <QMessageBox>
+#include <QDir>
+#include <QFileDialog>
 
 #include "header/retriever.h"
 #include "header/task.h"
@@ -72,6 +74,9 @@ Retriever::Retriever(QWidget *parent) :
 
     connect(this->ui->menuOptionsShow, SIGNAL(triggered()),
 	    this->options, SLOT(show()));
+
+    connect(this->ui->menuFileExportSettings, SIGNAL(triggered()),
+	    this, SLOT(exportConfiguration()));
 
     connect( proc, SIGNAL(readyReadStandardOutput()),
 		this, SLOT(readFromStdout()));
@@ -464,6 +469,19 @@ void Retriever::deleteTask(void)
 	return;
 }
 
+void Retriever::exportConfiguration(void)
+{
+	qDebug() << this->settings->fileName();
+
+	QString to_file = QDir::toNativeSeparators(
+		QFileDialog::getSaveFileName(this,
+		tr("Save as..."), QDir::homePath())
+	);
+
+	QFile::copy(this->settings->fileName(), to_file);
+
+	return;
+}
 
 
 

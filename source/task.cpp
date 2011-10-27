@@ -149,7 +149,9 @@ void Task::setShowProgress(QString s)
 }
 
 void Task::browseFrom(void){this->ui->from->setText(this->browse());}
+
 void Task::browseTo(void)  {this->ui->to->setText(this->browse());}
+
 QString Task::browse(void)
 {
 	QString directory = QDir::toNativeSeparators(

@@ -72,6 +72,8 @@ public slots:
 	void readFromStderr(void);
 	void checkProcTermination(int);
 
+	void exportConfiguration(void);
+
 	void saveAll(void);
 	void loadAll(void);
 
