@@ -48,7 +48,10 @@ Retriever::Retriever(QWidget *parent) :
 
     this->taskList = new QList <Task *>;
     this->options  = new Options();
-    this->settings = new QSettings("leok.me", "Retriever");
+    this->settings = new QSettings(QSettings::IniFormat,
+				   QSettings::UserScope,
+				   "leok.me",
+				   "Retriever");
 
     this->proc = new QProcess(this);
     connect(this->proc, SIGNAL(finished(int)),
@@ -158,6 +161,7 @@ int Retriever::getFreeId(void)
 
 	return free_id;
 }
+
 Task * Retriever::createNewTask(void)
 {
 	Task *t = new Task(this);
@@ -170,6 +174,7 @@ Task * Retriever::createNewTask(void)
 	t->show();
 	return t;
 }
+
 void Retriever::editTask(void)
 {
 	int selected_row = this->ui->taskList->currentIndex().row();
@@ -188,11 +193,13 @@ void Retriever::editTask(void)
 	}
 	return;
 }
+
 void Retriever::showTask(QModelIndex index)
 {
 	this->taskList->at(index.row())->show();
 	return;
 }
+
 void Retriever::refreshTaskList(void)
 {
 	int i = 0;
@@ -227,18 +234,15 @@ void Retriever::refreshTaskList(void)
  */
 void Retriever::saveAll(void)
 {
-	this->saveTaskList();
 	this->saveConfiguration();
 	return;
 }
 
 void Retriever::loadAll(void)
 {
-	this->loadTaskList();
 	this->loadConfiguration();
 	return;
 }
-
 
 /**
  * @fn          void Retriever::saveConfiguration(void)
@@ -255,114 +259,58 @@ void Retriever::loadAll(void)
  */
 void Retriever::saveConfiguration(void)
 {
+	int i;
+
 	this->settings->setValue("options/rsync_path", options->rsync_path);
+	this->settings->setValue("tasks/size", this->taskList->size());
+
+	this->settings->beginWriteArray("tasks");
+	for (i = 0; i < this->taskList->size(); i++)
+	{
+		this->settings->setArrayIndex(i);
+		this->settings->setValue("title", this->taskList->at(i)->title);
+		this->settings->setValue("id", this->taskList->at(i)->id);
+		this->settings->setValue("from", this->taskList->at(i)->from);
+		this->settings->setValue("to", this->taskList->at(i)->to);
+		this->settings->setValue("opt_remote", this->taskList->at(i)->opt_remote);
+		this->settings->setValue("opt_delete", this->taskList->at(i)->opt_delete);
+		this->settings->setValue("opt_compress", this->taskList->at(i)->opt_compress);
+		this->settings->setValue("opt_recursive", this->taskList->at(i)->opt_recursive);
+		this->settings->setValue("opt_show_progress", this->taskList->at(i)->opt_show_progress);
+		this->settings->setValue("opt_schedule",
+					 this->taskList->at(i)->opt_schedule.toString("yyyy-M-d hh:mm:ss"));
+	}
+	this->settings->endArray();
+
 	return;
 }
 
 void Retriever::loadConfiguration(void)
 {
 	options->setRsyncPath(this->settings->value("options/rsync_path").toString());
-}
 
-/**
- * @fn          void Retriever::saveTaskList(void)
- * @brief       Saves the task list
- *
- * @details     Saves the task list into a file. This file will be written as
- *              a csv file. This is better for edditing and reading, as we only
- *              need a split in the file and we're cool.
- *              I also like to be editing files outside the application. This
- *              method serves to separate the saving and file manipulation from
- *              the rest of the application too.
- *
- * @todo        Is it usefull to create a file manipulation class?
- */
-void Retriever::saveTaskList(void)
-{
-	QFile *f = new QFile("task.conf");
-	qDebug() << "Saving in file";
+	int task_list_size = this->settings->beginReadArray("tasks");
+	qDebug() << "Task list size is " << task_list_size;
 
-	/*
-	 * if something changed we better re-write the config file.
-	 * for now, just iterate on task list and re-write the whole thing.
-	 * YES. I know this extra loop is costy, but it's best to not glue it
-	 * with other code piece.
-	 *
-	 * @todo write some piece to update into the config file only
-	 *       the changed code (again, just for now ;-) ).
-	 */
-	if(!f->open(QIODevice::WriteOnly | QIODevice::Text))
+	for (int i = 0; i < task_list_size; i++)
 	{
-		qDebug() << "File not opened!";
+		this->settings->setArrayIndex(i);
+		Task *t = new Task(this);
+
+		t->setTitle(this->settings->value("title").toString());
+		t->setId(this->settings->value("id").toInt());
+		t->setFrom(this->settings->value("from").toString());
+		t->setTo(this->settings->value("to").toString());
+		t->setUseRemote(this->settings->value("opt_remote").toBool());
+		t->setRecursive(this->settings->value("opt_recursive").toBool());
+
+		qDebug() << t->title;
+
+		this->taskList->append(t);
 	}
-	QTextStream out(f);
+	this->settings->endArray();
 
-	for (int i = 0; i < this->taskList->size(); i++)
-	{
-		out << this->taskList->at(i)->title    << ";"
-		    << this->taskList->at(i)->id       << ";"
-		    << this->taskList->at(i)->from     << ";"
-		    << this->taskList->at(i)->to       << ";"
-		    << this->taskList->at(i)->opt_remote    << ";"
-		    << this->taskList->at(i)->opt_delete    << ";"
-		    << this->taskList->at(i)->opt_compress  << ";"
-		    << this->taskList->at(i)->opt_recursive << ";"
-		    << this->taskList->at(i)->opt_show_progress << ";"
-		    << this->taskList->at(i)->opt_schedule.toString("yyyy-M-d hh:mm:ss") << ";\n"
-		    ;
-	}
-
-	f->close();
-}
-
-void Retriever::loadTaskList(void)
-{
-	/**
-	 * Open configuration File
-	 * This will serve to feed the task list
-	 */
-	QFile *f = new QFile("task.conf");
-	qint64 size_read;
-
-	if (f->open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		/* read file contents */
-		char buf[1024];
-		while ((size_read = f->readLine(buf, sizeof(buf))) > 0)
-		{
-			QString *s = new QString(buf);
-			QStringList *sl = new QStringList(s->split(";"));
-
-			if (sl->size() < 2)
-				continue;
-
-			Task *t = new Task(this);
-			this->taskList->append(t);
-
-			bool ok;
-			t->setTitle(sl->at(0));
-			t->setId(sl->at(1).toInt(&ok, 10));
-			t->setFrom(sl->at(2));
-			t->setTo(sl->at(3));
-			t->setUseRemote(sl->at(4).toInt());
-			t->setDelete(sl->at(5));
-			t->setCompress(sl->at(6));
-			t->setRecursive(sl->at(7).toInt());
-			t->setShowProgress(sl->at(8));
-			t->setDate(sl->at(9));
-
-			qDebug() << "remote? " << sl->at(4).toInt();
-		}
-
-		this->refreshTaskList();
-		f->close();
-	}
-	else
-	{
-		qCritical() << "file NOT opened!";
-	}
-
-	return;
+	emit signalRefreshTaskList();
 }
 
 void Retriever::readFromStdout(void)

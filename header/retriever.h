@@ -64,8 +64,6 @@ public slots:
 	void editTask(void);
 	void refreshTaskList(void);
 	int  getFreeId(void);
-	void saveTaskList(void);
-	void loadTaskList(void);
 	void showTask(QModelIndex);
 	void syncAllTasks(void);
 	void syncSelectedTask(void);

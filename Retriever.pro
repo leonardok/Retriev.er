@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = Retriever
+TARGET = Retriev.er
 TEMPLATE = app
 
 RC_FILE  = retriever.rc
