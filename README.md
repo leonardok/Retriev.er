@@ -1,5 +1,7 @@
 ## README
 
+#### If you have any ideas, critiques, sugestions or whatever you want to call it, please tell me! Open an issue, or send me an email. I'll be happy to hear from you what you'd see in this app. I think about all sugestions, and I try to add those that make sense.
+
 ### DISCLAIMER
 
 * This is a very new project. 
@@ -20,7 +22,7 @@ At the moment I have absolutely no idea of how I'll distribute this application,
 
 * Windows users might just unzip it in your applications folder and run it from there.
 * Mac users will follow the very step-foward way of installing things.
-* Linux users will have to operate their own magic to compile/install this. I don't plan to support it in the near future, as in "providing methods for installation", other than trying to maintain the cross-platform nature of Qt.
+* Linux users will have to make their own magic to compile/install this. I don't plan to support it in the near future, as in "providing methods for installation", other than trying to maintain the cross-platform nature of Qt.
 
 Binary versions will be provided for Windows and Mac users. Linux will also be supported in the future (as I'm a 3 operating systems user).
 

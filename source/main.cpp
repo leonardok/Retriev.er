@@ -35,10 +35,9 @@ int main(int argc, char *argv[])
 	w.show();
 
 	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-			QMessageBox::critical(0, QObject::tr("Systray"),
-			QObject::tr("I couldn't detect any system tray "
-			"on this system."));
-		return 1;
+		QMessageBox::critical(0, QObject::tr("Systray"),
+		QObject::tr("I couldn't detect any system tray "
+		"on this system."));
 	}
 
 	return a.exec();

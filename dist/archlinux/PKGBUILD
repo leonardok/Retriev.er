@@ -1,0 +1,43 @@
+# Maintainer: Leonardo Korndorfer <leokorndorfer at gmail dot com>
+pkgname=retriev.er-git
+pkgver=20111027
+pkgrel=1
+pkgdesc="Retriev.er is a GUI for rsync written in Qt, that is used to synchronize folder in different locations, remote or not."
+arch=(i686 x86_64)
+url="http://github.com/leokorndorfer/Retriev.er"
+license=('BSD')
+groups=()
+depends=('git' 'make' 'qt')
+makedepends=()
+noextract=()
+md5sums=() #generate with 'makepkg -g'
+
+_gitroot="git://github.com/leokorndorfer/Retriev.er.git"
+_gitname="Retriev.er"
+
+
+build() {
+	cd "$srcdir"
+
+	msg "Connecting to github.com Git server...."
+	if [ -d $_gitname ] ; then
+		( cd $_gitname && git pull )
+	else
+		git clone $_gitroot $_gitname
+	fi
+
+	msg "Git checkout done or server timeout"
+
+	git clone -s $_gitname $_gitname-build
+	cd $_gitname-build
+
+	msg "Starting build..."
+
+	qmake  PREFIX="/usr/bin" -Wnone || return 1
+	make || return 1
+}
+
+package() {
+	cd "$srcdir/$_gitname-build"
+	make INSTALL_ROOT="$pkgdir/" install
+}

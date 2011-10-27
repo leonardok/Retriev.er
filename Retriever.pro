@@ -9,6 +9,9 @@ QT       += core gui
 TARGET = Retriev.er
 TEMPLATE = app
 
+target.path += /usr/bin
+INSTALLS += target
+
 RC_FILE  = retriever.rc
 
 SOURCES += source/main.cpp \
@@ -30,4 +33,5 @@ FORMS   += ui/task.ui \
 
 RESOURCES += resources.qrc
 
-OTHER_FILES += README.txt
+OTHER_FILES += README.md \
+    dist/archlinux/PKGBUILD
