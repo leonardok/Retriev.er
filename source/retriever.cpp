@@ -77,6 +77,8 @@ Retriever::Retriever(QWidget *parent) :
 
     connect(this->ui->menuFileExportSettings, SIGNAL(triggered()),
 	    this, SLOT(exportConfiguration()));
+    connect(this->ui->menuFileImportSettings, SIGNAL(triggered()),
+	    this, SLOT(importConfiguration()));
 
     connect( proc, SIGNAL(readyReadStandardOutput()),
 		this, SLOT(readFromStdout()));
@@ -295,8 +297,6 @@ void Retriever::loadConfiguration(void)
 	options->setRsyncPath(this->settings->value("options/rsync_path").toString());
 
 	int task_list_size = this->settings->beginReadArray("tasks");
-	qDebug() << "Task list size is " << task_list_size;
-
 	for (int i = 0; i < task_list_size; i++)
 	{
 		this->settings->setArrayIndex(i);
@@ -315,7 +315,7 @@ void Retriever::loadConfiguration(void)
 	}
 	this->settings->endArray();
 
-	emit signalRefreshTaskList();
+	this->refreshTaskList();
 }
 
 void Retriever::readFromStdout(void)
@@ -479,6 +479,30 @@ void Retriever::exportConfiguration(void)
 	);
 
 	QFile::copy(this->settings->fileName(), to_file);
+
+	return;
+}
+
+void Retriever::importConfiguration(void)
+{
+	qDebug() << this->settings->fileName();
+
+	QString from_file = QDir::toNativeSeparators(
+		QFileDialog::getOpenFileName(this,
+		tr("Chose file..."), QDir::homePath())
+	);
+
+	qDebug() << from_file;
+
+	if (from_file.size() > 5)
+	{
+		QFile::remove(this->settings->fileName());
+		QFile::copy(from_file, this->settings->fileName());
+
+		QMessageBox msgBox;
+		msgBox.setText("Please restart the application for the changes take effect.");
+		msgBox.exec();
+	}
 
 	return;
 }

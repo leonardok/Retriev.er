@@ -73,6 +73,7 @@ public slots:
 	void checkProcTermination(int);
 
 	void exportConfiguration(void);
+	void importConfiguration(void);
 
 	void saveAll(void);
 	void loadAll(void);
