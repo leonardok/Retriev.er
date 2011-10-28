@@ -39,4 +39,5 @@ FORMS   += ui/task.ui \
 RESOURCES += resources.qrc
 
 OTHER_FILES += README.md \
-    dist/archlinux/PKGBUILD
+    dist/archlinux/PKGBUILD \
+    Changelog
