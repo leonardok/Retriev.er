@@ -49,6 +49,18 @@ Task::Task(QWidget *parent) :
 	connect(this->ui->buttonBrowseTo, SIGNAL(clicked()),
 		this, SLOT(browseTo()));
 
+	/* schedule */
+	connect(this->ui->scheduleEnable, SIGNAL(clicked(bool)),
+		this, SLOT(enableSchedule(bool)));
+	connect(this->ui->oncePerHour, SIGNAL(clicked()),
+		this, SLOT(setHourlyRecurrence()));
+	connect(this->ui->oncePerDay, SIGNAL(clicked()),
+		this, SLOT(setDailyRecurrence()));
+	connect(this->ui->oncePerWeek, SIGNAL(clicked()),
+		this, SLOT(setWeeklyRecurrence()));
+	connect(this->ui->oncePerMonth, SIGNAL(clicked()),
+		this, SLOT(setMontlyRecurrence()));
+
 	this->opt_recursive = false;
 	this->opt_delete = false;
 	this->opt_remote = false;
@@ -99,14 +111,10 @@ void Task::setTo(QString s)
 	return;
 }
 
-void Task::setDate(QString s)
+void Task::setDateTime(QDateTime s)
 {
-
-	QDateTime d;
-	d.fromString(s);
-	qDebug() << d;
-	this->opt_schedule = d;
-	this->ui->schedule->setDateTime(d);
+	this->opt_schedule = s;
+	this->ui->schedule->setDateTime(s);
 	return;
 }
 
@@ -146,6 +154,96 @@ void Task::setShowProgress(QString s)
 {
 	//this->opt_remote = s.toInt();
 	return;
+}
+
+void Task::setEnableSchedule(bool checked)
+{
+	if (checked == false)
+	{
+		this->ui->scheduleEnable->setChecked(false);
+		this->ui->schedule->setEnabled(false);
+
+		/* disable all recurrence radio */
+		this->ui->oncePerHour->setEnabled(false);
+		this->ui->oncePerDay->setEnabled(false);
+		this->ui->oncePerWeek->setEnabled(false);
+		this->ui->oncePerMonth->setEnabled(false);
+
+		this->opt_enable_schedule = false;
+	}
+	else
+	{
+		this->ui->scheduleEnable->setChecked(true);
+		this->ui->schedule->setEnabled(true);
+
+		/* enable all recurrence radio */
+		this->ui->oncePerHour->setEnabled(true);
+		this->ui->oncePerDay->setEnabled(true);
+		this->ui->oncePerWeek->setEnabled(true);
+		this->ui->oncePerMonth->setEnabled(true);
+
+		this->opt_enable_schedule = true;
+	}
+	return;
+}
+
+void Task::setHourlyRecurrence(void)
+{
+	qDebug() << "setHourlyRecurrence";
+	this->setRecurrence(RECUR_HOUR);
+	return;
+}
+
+void Task::setDailyRecurrence(void)
+{
+	qDebug() << "setDailyRecurrence";
+	this->setRecurrence(RECUR_DAY);
+	return;
+}
+
+void Task::setWeeklyRecurrence(void)
+{
+	qDebug() << "setWeeklyRecurrence";
+	this->setRecurrence(RECUR_WEEK);
+	return;
+}
+
+void Task::setMontlyRecurrence(void)
+{
+	qDebug() << "setMontlyRecurrence";
+	this->setRecurrence(RECUR_MONTH);
+	return;
+}
+
+void Task::setRecurrence(int b)
+{
+	qDebug() << "button " << b;
+	switch (b)
+	{
+		case RECUR_HOUR:
+			this->ui->oncePerHour->setChecked(true);
+			break;
+		case RECUR_DAY:
+			this->ui->oncePerDay->setChecked(true);
+			break;
+		case RECUR_WEEK:
+			this->ui->oncePerWeek->setChecked(true);
+			break;
+		case RECUR_MONTH:
+			this->ui->oncePerMonth->setChecked(true);
+			break;
+		default:
+			qCritical() << "Not known option";
+			return;
+	}
+	this->opt_recurrence = b;
+
+	return;
+}
+
+void Task::enableSchedule(bool checked)
+{
+	this->setEnableSchedule(checked);
 }
 
 void Task::browseFrom(void){this->ui->from->setText(this->browse());}

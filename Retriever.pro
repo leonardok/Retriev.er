@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = Retriev.er
+TARGET = retriev.er
 TEMPLATE = app
 
 target.path += /usr/bin
@@ -19,17 +19,20 @@ SOURCES += source/main.cpp \
 	source/task.cpp \
 	source/log.cpp \
 	source/sync.cpp \
-	source/options.cpp
+	source/options.cpp \
+	source/monitor.cpp
 
 HEADERS += header/retriever.h \
 	header/task.h \
 	header/log.h \
 	header/sync.h \
-	header/options.h
+	header/options.h \
+	header/monitor.h
 
 FORMS   += ui/task.ui \
 	ui/retriever.ui \
-	ui/options.ui
+	ui/options.ui \
+	ui/about.ui
 
 RESOURCES += resources.qrc
 

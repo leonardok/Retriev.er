@@ -31,9 +31,11 @@
 #include <QSystemTrayIcon>
 #include <QProcess>
 #include <QSettings>
+#include <QThread>
 
 #include "header/task.h"
 #include "header/options.h"
+#include "header/monitor.h"
 
 namespace Ui {
     class Retriever;
@@ -71,12 +73,15 @@ public slots:
 	void readFromStdout(void);
 	void readFromStderr(void);
 	void checkProcTermination(int);
+	void showAbout(void);
 
 	void exportConfiguration(void);
 	void importConfiguration(void);
 
 	void saveAll(void);
 	void loadAll(void);
+
+	void syncTaskAt(int index);
 
 
 
@@ -90,6 +95,9 @@ private:
     Options *options;
     QProcess *proc;
     QSettings *settings;
+
+    QThread *mon_thread;
+    Monitor *mon;
 
     void closeEvent(QCloseEvent *event);
     void saveConfiguration(void);

@@ -35,11 +35,14 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QFileDialog>
+#include <QThread>
 
 #include "header/retriever.h"
 #include "header/task.h"
 #include "header/options.h"
 #include "ui_retriever.h"
+#include "ui_about.h"
+#include "ui_task.h"
 
 
 Retriever::Retriever(QWidget *parent) :
@@ -54,6 +57,16 @@ Retriever::Retriever(QWidget *parent) :
 				   QSettings::UserScope,
 				   "leok.me",
 				   "Retriever");
+
+    /*
+     * Start up the monitor thread
+    **/
+    this->mon = new Monitor(this->taskList);
+    this->mon->start();
+
+    connect(this->mon, SIGNAL(signalSyncTaskAt(int)),
+	    this, SLOT(syncTaskAt(int)));
+
 
     this->proc = new QProcess(this);
     connect(this->proc, SIGNAL(finished(int)),
@@ -84,6 +97,9 @@ Retriever::Retriever(QWidget *parent) :
 		this, SLOT(readFromStdout()));
     connect( proc, SIGNAL(readyReadStandardError()),
 		this, SLOT(readFromStderr()));
+
+    connect(this->ui->menuHelpAbout, SIGNAL(triggered()),
+	    this, SLOT(showAbout()));
 
     connect(this->ui->menuFileQuit, SIGNAL(triggered()),
 	    qApp, SLOT(quit()));
@@ -149,6 +165,16 @@ void Retriever::closeEvent(QCloseEvent *event)
 	}
 	else
 		event->accept();
+}
+
+
+void Retriever::showAbout(void)
+{
+	QDialog *about = new QDialog();
+	Ui::About ui;
+	ui.setupUi(about);
+
+	about->show();
 }
 
 int Retriever::getFreeId(void)
@@ -284,8 +310,11 @@ void Retriever::saveConfiguration(void)
 		this->settings->setValue("opt_compress", this->taskList->at(i)->opt_compress);
 		this->settings->setValue("opt_recursive", this->taskList->at(i)->opt_recursive);
 		this->settings->setValue("opt_show_progress", this->taskList->at(i)->opt_show_progress);
+		this->settings->setValue("opt_enable_schedule", this->taskList->at(i)->opt_enable_schedule);
 		this->settings->setValue("opt_schedule",
 					 this->taskList->at(i)->opt_schedule.toString("yyyy-M-d hh:mm:ss"));
+
+		this->settings->setValue("opt_recurrence", this->taskList->at(i)->opt_recurrence);
 	}
 	this->settings->endArray();
 
@@ -308,6 +337,9 @@ void Retriever::loadConfiguration(void)
 		t->setTo(this->settings->value("to").toString());
 		t->setUseRemote(this->settings->value("opt_remote").toBool());
 		t->setRecursive(this->settings->value("opt_recursive").toBool());
+		t->setDateTime(this->settings->value("opt_schedule").toDateTime());
+		t->setEnableSchedule(this->settings->value("opt_enable_schedule").toBool());
+		t->setRecurrence(this->settings->value("opt_recurrence").toInt());
 
 		qDebug() << t->title;
 
@@ -359,6 +391,16 @@ void Retriever::syncAllTasks(void)
 		qDebug() << "Syncyng task with command line:\n";
 		qDebug() << t->title;
 	}
+}
+
+void Retriever::syncTaskAt(int index)
+{
+	qDebug() << "Will sync task under index " << index;
+
+	this->ui->taskList->setCurrentRow(index);
+	this->syncSelectedTask();
+
+	return;
 }
 
 void Retriever::syncSelectedTask(void)

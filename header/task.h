@@ -40,18 +40,27 @@ class Task : public QDialog
     Q_OBJECT
 
 public:
+	enum {
+		RECUR_HOUR,
+		RECUR_DAY,
+		RECUR_WEEK,
+		RECUR_MONTH
+	};
+
 	int		id;
 	QString		from;
 	QString		to;
 	QString		title;
 
 	QDateTime	opt_schedule;
+	int             opt_recurrence;
 
 	bool		opt_recursive;
 	bool		opt_delete;
 	bool		opt_remote;
 	bool		opt_compress;
 	bool		opt_show_progress;
+	bool		opt_enable_schedule;
 
 	explicit Task(QWidget *parent = 0);
 	~Task();
@@ -67,7 +76,10 @@ public:
 	void setCompress(QString);
 	void setRecursive(int);
 	void setShowProgress(QString);
-	void setDate(QString);
+	void setDateTime(QDateTime);
+	void setEnableSchedule(bool);
+	void setRecurrence(int);
+	void sync(void);
 
 public slots:
 	void saveTask(void);
@@ -75,6 +87,11 @@ public slots:
 	void browseFrom(void);
 	void browseTo(void);
 	QString browse(void);
+	void enableSchedule(bool checked);
+	void setHourlyRecurrence(void);
+	void setDailyRecurrence(void);
+	void setWeeklyRecurrence(void);
+	void setMontlyRecurrence(void);
 
 signals:
 	void signalChangedTask();
