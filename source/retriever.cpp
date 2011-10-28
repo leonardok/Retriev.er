@@ -353,12 +353,21 @@ void Retriever::loadConfiguration(void)
 void Retriever::readFromStdout(void)
 {
 	QString msg = proc->readAllStandardOutput();
+	if (msg.at(msg.size()-1) == '\n')
+	{
+		msg.remove(msg.size()-1 , 1);
+	}
 	this->ui->console->append(msg);
 }
 
 void Retriever::readFromStderr(void)
 {
-	this->ui->console->append(proc->readAllStandardError());
+	QString msg = proc->readAllStandardError();
+	if (msg.at(msg.size()-1) == '\n')
+	{
+		msg.remove(msg.size()-1 , 1);
+	}
+	this->ui->console->append(msg);
 }
 
 void Retriever::checkProcTermination(int termination_code)
@@ -444,6 +453,14 @@ void Retriever::syncSelectedTask(void)
 	QString cygpath, directory_from, directory_to;
 	QProcess *cygpath_proc;
 	QStringList arg_list;
+
+	if (this->options->rsync_path.size() == 0)
+	{
+		qDebug() << "No rsync path.";
+
+		this->ui->console->append("Please specify the cwRsync path in File > Options.");
+		return;
+	}
 
 	cygpath = "\"";
 	cygpath.append(this->options->rsync_path);
