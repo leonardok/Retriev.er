@@ -12,6 +12,8 @@ TEMPLATE = app
 target.path += /usr/bin
 INSTALLS += target
 
+DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
 RC_FILE  = retriever.rc
 
 SOURCES += source/main.cpp \

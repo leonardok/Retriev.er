@@ -21,8 +21,8 @@ void Monitor::run(void)
 void Monitor::checkTasks()
 {
 	int i = 0;
-	QString curr_date_time = QDateTime::currentDateTime().toString("yyyyMMddhhmm");
-	QString scheduled_time;
+	QDateTime curr_date_time = QDateTime::currentDateTime();
+	QDateTime scheduled_time;
 
 	for (i = 0; i < task_list->size(); i++)
 	{
@@ -31,8 +31,9 @@ void Monitor::checkTasks()
 			qDebug() << "Schedule not enabled";
 			continue;
 		}
-		scheduled_time = task_list->at(i)->opt_schedule.toString("yyyyMMddhhmm");
-		if (scheduled_time.toInt() <= curr_date_time.toInt())
+		scheduled_time = task_list->at(i)->opt_schedule;
+
+		if (scheduled_time <= curr_date_time)
 		{
 			qDebug() << "Task must run now";
 			switch (task_list->at(i)->opt_recurrence)
@@ -58,7 +59,8 @@ void Monitor::checkTasks()
 		}
 		else
 		{
-			qDebug() << "Nothing at " << curr_date_time << ". Task will run on " << scheduled_time;
+			qDebug() << "Nothing at " << curr_date_time <<
+				    ". Task will run on " << scheduled_time;
 		}
 	}
 }
