@@ -488,8 +488,8 @@ void Retriever::syncSelectedTask(void)
 	rsyncpath.append("\\rsync.exe\"");
 
 #else
-	arguments << t->from.toAscii();
-	arguments << t->to.toAscii();
+        arguments << t->from.append("/").toAscii();
+        arguments << t->to.append("/").toAscii();
 
 	/* for linux and OSX say its in path */
 	rsyncpath = "rsync";
